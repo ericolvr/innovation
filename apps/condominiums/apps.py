@@ -1,0 +1,9 @@
+from django.apps import AppConfig
+
+
+class CondominiumsConfig(AppConfig):
+    default_auto_field = 'django.db.models.BigAutoField'
+    name = 'apps.condominiums'
+
+    def ready(self):
+        import apps.condominiums.signals  # noqa: F401
