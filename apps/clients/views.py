@@ -51,8 +51,23 @@ class ClientDetailView(generics.RetrieveUpdateDestroyAPIView):
     def perform_update(self, serializer):
         password = serializer.validated_data.pop('password', None)
         client = serializer.save()
-        if password:
-            user = client.users.first()
-            if user:
+
+        user = client.users.first()
+        if user:
+            updated_fields = []
+
+            if user.name != client.name:
+                user.name = client.name
+                updated_fields.append('name')
+
+            if user.mobile != client.mobile:
+                user.mobile = client.mobile
+                updated_fields.append('mobile')
+
+            if password:
                 user.set_password(password)
-                user.save(update_fields=['password', 'updated_at'])
+                updated_fields.append('password')
+
+            if updated_fields:
+                updated_fields.append('updated_at')
+                user.save(update_fields=updated_fields)
