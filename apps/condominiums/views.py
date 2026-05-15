@@ -119,7 +119,13 @@ class MaintenanceListView(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        qs = Maintenance.objects.prefetch_related('items__device', 'items__equipment')
+        user = self.request.user
+        qs = Maintenance.objects.select_related('condominium').prefetch_related('items__device', 'items__equipment')
+
+        # perfil 2 vê apenas manutenções dos seus condomínios
+        if user.type == 2 and user.client_id:
+            qs = qs.filter(condominium__client_id=user.client_id)
+
         condo_id = self.request.query_params.get('condominium')
         if condo_id:
             qs = qs.filter(condominium_id=condo_id)
